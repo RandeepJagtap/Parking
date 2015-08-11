@@ -7,22 +7,24 @@ public class Lot {
 
     private boolean isEmpty;
     private Integer lotId;
-    private Integer carId;
+    private Car car;
 
     public Lot(Integer lotId){
         isEmpty=true;
         this.lotId=lotId;
-        this.carId=-1;
+        this.car=null;
     }
 
-    public void freeLot() {
+    public Car freeLot() {
         isEmpty=true;
-        this.carId=-1;
+        Car car=this.car;
+        this.car=null;
+        return car;
     }
 
-    public void fillLot(int carId) {
+    public void fillLot(Car car) {
         isEmpty=false;
-        this.carId=carId;
+       this.car=car;
     }
 
     public boolean checkIsEmpty() {

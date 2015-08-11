@@ -16,16 +16,34 @@ public class ParkingLotTest {
         Car car=new Car();
         ParkingLot parkingLot=new ParkingLot(10);
 
-        Assert.assertTrue("Can Park",parkingLot.canPark(car));
+        Assert.assertNotNull("Can Park", parkingLot.park(car));
 
     }
     @Test
-    public  void shouldTestCarParkingFail(){
+         public  void shouldTestCarParkingFail(){
 
         Car car=new Car();
         ParkingLot parkingLot=new ParkingLot(0);
 
-        Assert.assertFalse("Cannot Park",parkingLot.canPark(car));
+        Assert.assertNull("Cannot Park",parkingLot.park(car));
+
+    }
+    @Test
+    public  void shouldTestCarUnParking(){
+
+        Car car=new Car();
+        ParkingLot parkingLot=new ParkingLot(10);
+
+        Assert.assertNotNull("Can UnPark", parkingLot.unPark(parkingLot.park(car)));
+
+    }
+    @Test
+    public  void shouldTestCarUnParkingFail(){
+
+        Car car=new Car();
+        ParkingLot parkingLot=new ParkingLot(0);
+
+        Assert.assertNull("Cannot Park",parkingLot.unPark(new Lot(0)));
 
     }
 

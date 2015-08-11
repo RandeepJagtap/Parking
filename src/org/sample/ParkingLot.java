@@ -17,14 +17,17 @@ public class ParkingLot {
         }
     }
 
-    public boolean canPark(Car car){
+    public Lot park(Car car){
         for(Lot tempLot:lot){
             if(tempLot.checkIsEmpty()){
-                tempLot.fillLot(car.getCarId());
-                return true;
+                tempLot.fillLot(car);
+                return tempLot;
             }
         }
-        return false;
+        return null;
+    }
+    public Car unPark(Lot lot){
+       return lot.freeLot();
     }
 
 }
