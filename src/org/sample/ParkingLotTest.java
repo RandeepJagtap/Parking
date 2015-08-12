@@ -11,21 +11,40 @@ import static org.junit.Assert.*;
 public class ParkingLotTest {
 
     @Test
-    public  void shouldTestCarParking(){
+    public  void shouldTestCarParking() {
 
         Car car=new Car();
         ParkingLot parkingLot=new ParkingLot(10);
 
-        Assert.assertNotNull("Can Park", parkingLot.park(car));
+        Assert.assertTrue("Can Park", parkingLot.park(car) instanceof Ticket);
 
     }
-    @Test
+    @Test(expected = ParkingFullException.class)
          public  void shouldTestCarParkingFail(){
 
         Car car=new Car();
         ParkingLot parkingLot=new ParkingLot(0);
 
-        Assert.assertNull("Cannot Park",parkingLot.park(car));
+        Assert.assertFalse("CanNot Park", parkingLot.park(car) instanceof Ticket);
+
+    }
+    @Test
+    public  void shouldTestDuplicateCarParking(){
+
+        Car car=new Car();
+        ParkingLot parkingLot=new ParkingLot(5);
+        Ticket ticket=parkingLot.park(car);
+        Assert.assertEquals(ticket, parkingLot.park(car));
+
+    }
+    @Test
+    public  void shouldTestDuplicateCarParkingFail(){
+
+        Car car=new Car();
+        ParkingLot parkingLot=new ParkingLot(5);
+        Ticket ticket=parkingLot.park(car);
+        Ticket ticket1=new Ticket(12,12);
+        Assert.assertNotSame(ticket1, parkingLot.park(car));
 
     }
     @Test
@@ -34,16 +53,16 @@ public class ParkingLotTest {
         Car car=new Car();
         ParkingLot parkingLot=new ParkingLot(10);
 
-        Assert.assertNotNull("Can UnPark", parkingLot.unPark(parkingLot.park(car)));
+        Assert.assertTrue("Can UnPark", parkingLot.unPark(parkingLot.park(car)).equals(car));
 
     }
-    @Test
+    @Test(expected =NoSuchCarParkedException.class)
     public  void shouldTestCarUnParkingFail(){
 
         Car car=new Car();
         ParkingLot parkingLot=new ParkingLot(0);
 
-        Assert.assertNull("Cannot UnPark",parkingLot.unPark(new Ticket(200,300)));
+        Assert.assertFalse("Cannot UnPark", parkingLot.unPark(new Ticket(200, 300)).equals(car));
 
     }
 
