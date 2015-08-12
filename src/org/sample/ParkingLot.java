@@ -1,56 +1,55 @@
 package org.sample;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by Randeep on 8/11/2015.
  */
-public class ParkingLot {
-    private Boolean fullSign;
-    private Integer lotCount=0;
+public class ParkingLot implements NotificationForFull,NotificationForEmpty,NotificationForEightyPercent {
+    private boolean fullSign;
+    private boolean eightyPercentlFlag;
+    private Integer lotCount = 0;
     private Integer capacity;
     private Lot[] lots;
-    private ArrayList<Ticket> tickets=new ArrayList<>();
+    private ArrayList<Ticket> tickets = new ArrayList<>();
     private Owner owner;
+    private ArrayList<Observer> fullObservers = new ArrayList<Observer>();
+    private ArrayList<Observer> availabelObservers = new ArrayList<Observer>();
+    private ArrayList<Observer> eightyPercentlObservers = new ArrayList<Observer>();
 
-    public ParkingLot(Integer capacity) {
-        fullSign=false;
-        owner = new Owner("Randeep");
-        this.capacity=capacity;
-        lots =new Lot[capacity];
-        for(int i=0;i<capacity;i++){
-            lots[i]=new Lot(lotCount++);
-        }
-        owner.createParkingLot(this);
-    }
-    public ParkingLot(Integer capacity,Owner owner) {
-        fullSign=false;
-        this.owner=owner;
-        this.capacity=capacity;
-        lots =new Lot[capacity];
-        for(int i=0;i<capacity;i++){
-            lots[i]=new Lot(lotCount++);
+    public ParkingLot(Integer capacity, Owner owner) {
+        fullSign = false;
+        this.owner = owner;
+        this.capacity = capacity;
+        lots = new Lot[capacity];
+        for (int i = 0; i < capacity; i++) {
+            lots[i] = new Lot(lotCount++);
         }
         owner.createParkingLot(this);
     }
 
     public Ticket park(Car car) throws ParkingFullException {
-        for(Ticket tempTicket:tickets)
-        {
-            if(tempTicket.getCarId().equals(car.getCarId())){
+        for (Ticket tempTicket : tickets) {
+            if (tempTicket.getCarId().equals(car.getCarId())) {
                 return tempTicket;
             }
         }
         if (isFull())
             throw new ParkingFullException("Parking Full");
-        for(Lot tempLot: lots){
-            if(tempLot.checkIsEmpty()){
+        for (Lot tempLot : lots) {
+            if (tempLot.checkIsEmpty()) {
                 tempLot.fillLot(car);
-                Ticket ticket = new Ticket(tempLot.getLotId(),car.getCarId());
+                Ticket ticket = new Ticket(tempLot.getLotId(), car.getCarId());
                 tickets.add(ticket);
-                if (tickets.size()==capacity)
-                    fullSign=owner.notifyParkingIsFull(this);
+                if (tickets.size() == capacity) {
+                    notifyObserversForFull();
+                    this.fullSign = true;
+                }
+                if (tickets.size() >= .8*capacity && !eightyPercentlFlag) {
+                    notifyObserversForEightyPercent();
+                    this.eightyPercentlFlag = true;
+                }
+
                 return ticket;
             }
         }
@@ -58,17 +57,27 @@ public class ParkingLot {
     }
 
     public Car unPark(Ticket ticket) throws NoSuchCarParkedException {
-        for(Lot tempLot : lots) {
-            if(tempLot.getLotId().equals(ticket.getLotId())) {
+        for (Lot tempLot : lots) {
+            if (tempLot.getLotId().equals(ticket.getLotId())) {
                 tickets.remove(ticket);
-                if (fullSign)
-                    fullSign=owner.notifyParkingAvailable(this);
+                if (fullSign) {
+                    notifyObserversForEmpty();
+                    fullSign = false;
+                }
+                if(tickets.size() < .8*capacity)
+                    this.eightyPercentlFlag = false;
+                if (tickets.size() <= .8*capacity && eightyPercentlFlag) {
+                    notifyObserversForEightyPercent();
+
+                }
+
                 return tempLot.freeLot(ticket);
             }
         }
-       throw new NoSuchCarParkedException("No Car Found");
+        throw new NoSuchCarParkedException("No Car Found");
     }
-    public Boolean isFull(){
+
+    public Boolean isFull() {
 
         return fullSign;
     }
@@ -85,32 +94,55 @@ public class ParkingLot {
         return owner;
     }
 
+
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ParkingLot)) return false;
-
-        ParkingLot that = (ParkingLot) o;
-
-        if (fullSign != null ? !fullSign.equals(that.fullSign) : that.fullSign != null) return false;
-        if (lotCount != null ? !lotCount.equals(that.lotCount) : that.lotCount != null) return false;
-        if (getCapacity() != null ? !getCapacity().equals(that.getCapacity()) : that.getCapacity() != null)
-            return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(lots, that.lots)) return false;
-        if (getTickets() != null ? !getTickets().equals(that.getTickets()) : that.getTickets() != null) return false;
-        return !(getOwner() != null ? !getOwner().equals(that.getOwner()) : that.getOwner() != null);
-
+    public void registerObserverForFull(Observer observer) {
+        fullObservers.add(observer);
     }
 
     @Override
-    public int hashCode() {
-        int result = fullSign != null ? fullSign.hashCode() : 0;
-        result = 31 * result + (lotCount != null ? lotCount.hashCode() : 0);
-        result = 31 * result + (getCapacity() != null ? getCapacity().hashCode() : 0);
-        result = 31 * result + (lots != null ? Arrays.hashCode(lots) : 0);
-        result = 31 * result + (getTickets() != null ? getTickets().hashCode() : 0);
-        result = 31 * result + (getOwner() != null ? getOwner().hashCode() : 0);
-        return result;
+    public void removeObserverForFull(Observer observer) {
+        fullObservers.remove(observer);
+    }
+
+    @Override
+    public void notifyObserversForFull( ) {
+        for (Observer ob : fullObservers) {
+            ob.notification(this);
+        }
+    }
+
+    @Override
+    public void registerObserverForEmpty(Observer observer) {
+        availabelObservers.add(observer);
+    }
+
+    @Override
+    public void removeObserverForEmpty(Observer observer) {
+        availabelObservers.remove(observer);
+    }
+
+    @Override
+    public void notifyObserversForEmpty() {
+        for (Observer ob : availabelObservers) {
+            ob.notification(this);
+        }
+    }
+
+    @Override
+    public void registerObserverForEightyPercent(Observer observer) {
+        eightyPercentlObservers.add(observer);
+    }
+
+    @Override
+    public void removeObserverForEightyPercent(Observer observer) {
+        eightyPercentlObservers.add(observer);
+    }
+
+    @Override
+    public void notifyObserversForEightyPercent() {
+        for (Observer ob : eightyPercentlObservers) {
+            ob.notification(this);
+        }
     }
 }

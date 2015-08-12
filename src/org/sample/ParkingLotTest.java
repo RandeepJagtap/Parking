@@ -3,11 +3,9 @@ package org.sample;
 import junit.framework.Assert;
 import org.junit.Test;
 
-import static org.mockito.Mockito.atLeastOnce;
 import org.mockito.Mockito;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -20,7 +18,7 @@ public class ParkingLotTest {
     public  void shouldTestCarParking() {
 
         Car car=new Car();
-        ParkingLot parkingLot=new ParkingLot(10);
+        ParkingLot parkingLot=new ParkingLot(10,new Owner());
         Assert.assertTrue("Can Park", parkingLot.park(car) instanceof Ticket);
 
     }
@@ -28,7 +26,7 @@ public class ParkingLotTest {
          public  void shouldTestCarParkingFail(){
 
         Car car=new Car();
-        ParkingLot parkingLot=new ParkingLot(0);
+        ParkingLot parkingLot=new ParkingLot(0,new Owner());
 
         Assert.assertFalse("CanNot Park", parkingLot.park(car) instanceof Ticket);
 
@@ -37,7 +35,7 @@ public class ParkingLotTest {
     public  void shouldTestDuplicateCarParking(){
 
         Car car=new Car();
-        ParkingLot parkingLot=new ParkingLot(5);
+        ParkingLot parkingLot=new ParkingLot(5,new Owner());
         Ticket ticket=parkingLot.park(car);
         Assert.assertEquals(ticket, parkingLot.park(car));
 
@@ -46,7 +44,7 @@ public class ParkingLotTest {
     public  void shouldTestDuplicateCarParkingFail(){
 
         Car car=new Car();
-        ParkingLot parkingLot=new ParkingLot(5);
+        ParkingLot parkingLot=new ParkingLot(5,new Owner());
         Ticket ticket=parkingLot.park(car);
         Ticket ticket1=new Ticket(12,12);
         Assert.assertNotSame(ticket1, parkingLot.park(car));
@@ -56,7 +54,7 @@ public class ParkingLotTest {
     public  void shouldTestCarUnParking(){
 
         Car car=new Car();
-        ParkingLot parkingLot=new ParkingLot(10);
+        ParkingLot parkingLot=new ParkingLot(10,new Owner());
 
         Assert.assertTrue("Can UnPark", parkingLot.unPark(parkingLot.park(car)).equals(car));
 
@@ -65,7 +63,7 @@ public class ParkingLotTest {
     public  void shouldTestCarUnParkingFail(){
 
         Car car=new Car();
-        ParkingLot parkingLot=new ParkingLot(0);
+        ParkingLot parkingLot=new ParkingLot(0,new Owner());
 
         Assert.assertFalse("Cannot UnPark", parkingLot.unPark(new Ticket(200, 300)).equals(car));
 
@@ -73,43 +71,179 @@ public class ParkingLotTest {
 
     @Test
     public void shouldTestParkingFull(){
-        ParkingLot parkingLot = new ParkingLot(1);
+        ParkingLot parkingLot = new ParkingLot(2,new Owner());
         Car car = new Car();
         parkingLot.park(car);
+        parkingLot.park(new Car());
         Assert.assertTrue(parkingLot.isFull());
     }
 
     @Test
     public void shouldTestParkingNotFull(){
-        ParkingLot parkingLot = new ParkingLot(1);;
+        ParkingLot parkingLot = new ParkingLot(1,new Owner());
         Car car = new Car();
         parkingLot.unPark(parkingLot.park(car));
 
         Assert.assertFalse(parkingLot.isFull());
     }
     @Test
-    public void shouldTestOwnerNotification(){
+    public void shouldTestOwnerNotificationOfParkingFull(){
         Owner owner = Mockito.mock(Owner.class);
-        Owner owner1 = new Owner("Amit");
+        FbiAgent fbiAgent=Mockito.mock(FbiAgent.class);
         ParkingLot parkingLot = new ParkingLot(1,owner);
+        parkingLot.registerObserverForFull(owner);
+        parkingLot.registerObserverForFull(fbiAgent);
         Car car = new Car();
         parkingLot.park(car);
 
 
-        Mockito.verify(owner,atLeastOnce()).notifyParkingIsFull(parkingLot);
+        Mockito.verify(owner,times(1)).notification(parkingLot);
+        Mockito.verify(fbiAgent,times(1)).notification(parkingLot);
 
     }
     @Test
-    public void shouldTestOwnerNotificationFail(){
+    public void shouldTestOwnerNotificationOfParkingFullFail(){
         Owner owner = Mockito.mock(Owner.class);
-        Owner owner1 = new Owner("Amit");
-        ParkingLot parkingLot = new ParkingLot(1,owner);
+        FbiAgent fbiAgent=Mockito.mock(FbiAgent.class);
+        ParkingLot parkingLot = new ParkingLot(2,owner);
+        parkingLot.registerObserverForFull(owner);
+        parkingLot.registerObserverForFull(fbiAgent);
         Car car = new Car();
         parkingLot.park(car);
 
-        Mockito.verify(owner, never()).notifyParkingIsFull(parkingLot);
+        Mockito.verify(owner,never()).notification(parkingLot);
+        Mockito.verify(fbiAgent,never()).notification(parkingLot);
+
+    }
+    @Test
+    public  void shouldTestOwnerNotificationOfParkingFullOnlyOnce(){
+
+        Owner owner = Mockito.mock(Owner.class);
+        FbiAgent fbiAgent=Mockito.mock(FbiAgent.class);
+        ParkingLot parkingLot = new ParkingLot(1,owner);
+        parkingLot.registerObserverForFull(owner);
+        parkingLot.registerObserverForFull(fbiAgent);
+        Car car = new Car();
+        Car car1=new Car();
+        parkingLot.park(car);
+
+       try{
+           parkingLot.park(car1);
+       }catch(ParkingFullException e){
+           Mockito.verify(owner,times(1)).notification(parkingLot);
+           Mockito.verify(fbiAgent,times(1)).notification(parkingLot);
+       }
+
+
 
     }
 
+    @Test
+    public void shouldTestOwnerNotificationOfParkingAvailable(){
+        Owner owner = Mockito.mock(Owner.class);
+        ParkingLot parkingLot = new ParkingLot(1,owner);
+        parkingLot.registerObserverForEmpty(owner);
+
+        Car car = new Car();
+        Ticket ticket=parkingLot.park(car);
+
+
+        Mockito.verify(owner,never()).notification(parkingLot);
+
+       parkingLot.unPark(ticket);
+        Mockito.verify(owner,times(1)).notification(parkingLot);
+
+
+
+    }
+    @Test
+    public void shouldTestOwnerNotificationOfParkingAvailableFail(){
+        Owner owner = Mockito.mock(Owner.class);
+        ParkingLot parkingLot = new ParkingLot(1,owner);
+        parkingLot.registerObserverForEmpty(owner);
+
+        Car car = new Car();
+
+
+        parkingLot.unPark(parkingLot.park(car));
+
+
+        Mockito.verify(owner,times(1)).notification(parkingLot);
+
+    }
+    @Test
+    public  void shouldTestOwnerNotificationOfParkingAvailableOnlyOnce(){
+
+        Owner owner = Mockito.mock(Owner.class);
+        ParkingLot parkingLot = new ParkingLot(2,owner);
+        parkingLot.registerObserverForEmpty(owner);
+
+        Car car = new Car();
+        Car car1=new Car();
+        Ticket ticket=parkingLot.park(car);
+        Ticket ticket1=parkingLot.park(car1);
+
+        parkingLot.unPark(ticket1);
+        parkingLot.unPark(ticket);
+
+        Mockito.verify(owner,times(1)).notification(parkingLot);
+
+    }
+
+    @Test
+    public void shouldTestOwnerNotificationOfParkingForEightyPercent(){
+
+        Owner owner = Mockito.mock(Owner.class);
+        FbiAgent fbiAgent= Mockito.mock(FbiAgent.class);
+        ParkingLot parkingLot = new ParkingLot(5,owner);
+        parkingLot.registerObserverForEmpty(owner);
+        parkingLot.registerObserverForEightyPercent(fbiAgent);
+
+       for(int i=0;i<4;i++){
+           parkingLot.park(new Car());
+       }
+
+         Mockito.verify(fbiAgent,times(1)).notification(parkingLot);
+
+
+
+    }
+    @Test
+    public void shouldTestOwnerNotificationOfParkingEightyPercent(){
+        Owner owner = Mockito.mock(Owner.class);
+        FbiAgent fbiAgent= Mockito.mock(FbiAgent.class);
+        ParkingLot parkingLot = new ParkingLot(5,owner);
+        parkingLot.registerObserverForEmpty(owner);
+        parkingLot.registerObserverForEightyPercent(fbiAgent);
+
+        for(int i=0;i<4;i++){
+            parkingLot.park(new Car());
+        }
+        parkingLot.unPark(parkingLot.park(new Car()));
+
+        Mockito.verify(fbiAgent,times(2)).notification(parkingLot);
+
+
+    }
+    @Test
+    public  void shouldTestFbiAgentNotificationOfParkingAvailableAtEightyPercent(){
+
+        Owner owner = Mockito.mock(Owner.class);
+        FbiAgent fbiAgent= Mockito.mock(FbiAgent.class);
+        ParkingLot parkingLot = new ParkingLot(9,owner);
+        parkingLot.registerObserverForEmpty(owner);
+        parkingLot.registerObserverForEightyPercent(fbiAgent);
+
+        for(int i=0;i<7;i++){
+            parkingLot.park(new Car());
+        }
+        Ticket ticket=parkingLot.park(new Car());
+        parkingLot.unPark(ticket);
+        parkingLot.unPark(parkingLot.park(new Car()));
+
+        Mockito.verify(fbiAgent,times(2)).notification(parkingLot);
+
+
+    }
 
 }

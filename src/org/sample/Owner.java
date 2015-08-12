@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * Created by Randeep on 8/12/2015.
  */
-public class Owner {
+public class Owner implements Observer {
 
     private String name;
     private ArrayList<ParkingLot> parkingLots=new ArrayList<>();
@@ -17,13 +17,9 @@ public class Owner {
         parkingLots.add(parkingLot);
     }
 
-    public Boolean notifyParkingIsFull(ParkingLot parkingLot) {
-    return true;
+
+    @Override
+    public void notification(ParkingLot parkingLot) {
+
     }
-
-    public Boolean notifyParkingAvailable(ParkingLot parkingLot) {
-        return false;
-    }
-
-
 }
