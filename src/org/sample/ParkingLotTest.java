@@ -66,5 +66,22 @@ public class ParkingLotTest {
 
     }
 
+    @Test
+    public void shouldTestParkingFull(){
+        ParkingLot parkingLot = new ParkingLot(1);
+        Car car = new Car();
+        parkingLot.park(car);
+        Assert.assertTrue(parkingLot.isFull());
+    }
+
+    @Test
+    public void shouldTestParkingNotFull(){
+        ParkingLot parkingLot = new ParkingLot(1);;
+        Car car = new Car();
+        parkingLot.unPark(parkingLot.park(car));
+
+        Assert.assertFalse(parkingLot.isFull());
+    }
+
 
 }
