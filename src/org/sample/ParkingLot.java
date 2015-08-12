@@ -17,17 +17,21 @@ public class ParkingLot {
         }
     }
 
-    public Lot park(Car car){
+    public Ticket park(Car car){
         for(Lot tempLot:lot){
             if(tempLot.checkIsEmpty()){
                 tempLot.fillLot(car);
-                return tempLot;
+                return new Ticket(tempLot.getLotId(),car.getCarId());
             }
         }
         return null;
     }
-    public Car unPark(Lot lot){
-       return lot.freeLot();
+    public Car unPark(Ticket ticket){
+        for(Lot tempLot : lot) {
+            if(tempLot.getLotId().equals(ticket.getLotId()))
+                return tempLot.freeLot(ticket);
+        }
+        return null;
     }
 
 }

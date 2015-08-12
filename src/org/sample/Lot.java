@@ -15,7 +15,7 @@ public class Lot {
         this.car=null;
     }
 
-    public Car freeLot() {
+    public Car freeLot(Ticket ticket) {
         isEmpty=true;
         Car car=this.car;
         this.car=null;
@@ -31,4 +31,7 @@ public class Lot {
       return isEmpty;
     }
 
+    public Integer getLotId() {
+        return lotId;
+    }
 }

@@ -43,7 +43,7 @@ public class ParkingLotTest {
         Car car=new Car();
         ParkingLot parkingLot=new ParkingLot(0);
 
-        Assert.assertNull("Cannot Park",parkingLot.unPark(new Lot(0)));
+        Assert.assertNull("Cannot UnPark",parkingLot.unPark(new Ticket(200,300)));
 
     }
 
