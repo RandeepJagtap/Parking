@@ -9,7 +9,7 @@ public class Owner {
 
     private String name;
     private ArrayList<ParkingLot> parkingLots=new ArrayList<>();
-
+    public Owner(){}
     public Owner(String name) {
         this.name = name;
     }
@@ -18,10 +18,12 @@ public class Owner {
     }
 
     public Boolean notifyParkingIsFull(ParkingLot parkingLot) {
-        return true;
+    return true;
     }
 
     public Boolean notifyParkingAvailable(ParkingLot parkingLot) {
         return false;
     }
+
+
 }

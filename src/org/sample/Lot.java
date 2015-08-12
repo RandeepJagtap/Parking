@@ -34,4 +34,6 @@ public class Lot {
     public Integer getLotId() {
         return lotId;
     }
+
+
 }

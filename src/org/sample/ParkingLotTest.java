@@ -3,19 +3,24 @@ package org.sample;
 import junit.framework.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.mockito.Mockito.atLeastOnce;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 
 /**
  * Created by Randeep on 8/11/2015.
  */
 public class ParkingLotTest {
 
+
     @Test
     public  void shouldTestCarParking() {
 
         Car car=new Car();
         ParkingLot parkingLot=new ParkingLot(10);
-
         Assert.assertTrue("Can Park", parkingLot.park(car) instanceof Ticket);
 
     }
@@ -81,6 +86,29 @@ public class ParkingLotTest {
         parkingLot.unPark(parkingLot.park(car));
 
         Assert.assertFalse(parkingLot.isFull());
+    }
+    @Test
+    public void shouldTestOwnerNotification(){
+        Owner owner = Mockito.mock(Owner.class);
+        Owner owner1 = new Owner("Amit");
+        ParkingLot parkingLot = new ParkingLot(1,owner);
+        Car car = new Car();
+        parkingLot.park(car);
+
+
+        Mockito.verify(owner,atLeastOnce()).notifyParkingIsFull(parkingLot);
+
+    }
+    @Test
+    public void shouldTestOwnerNotificationFail(){
+        Owner owner = Mockito.mock(Owner.class);
+        Owner owner1 = new Owner("Amit");
+        ParkingLot parkingLot = new ParkingLot(1,owner);
+        Car car = new Car();
+        parkingLot.park(car);
+
+        Mockito.verify(owner, never()).notifyParkingIsFull(parkingLot);
+
     }
 
 
