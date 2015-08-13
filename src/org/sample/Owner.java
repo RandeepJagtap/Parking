@@ -19,7 +19,7 @@ public class Owner implements Observer {
 
 
     @Override
-    public void notification(ParkingLot parkingLot) {
+    public void notification(ParkingLot parkingLot,NotificationType type) {
 
     }
 }

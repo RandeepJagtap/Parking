@@ -6,7 +6,7 @@ package org.sample;
 public class FbiAgent implements Observer{
 
     @Override
-    public void notification(ParkingLot parkingLot) {
+    public void notification(ParkingLot parkingLot,NotificationType type) {
 
     }
 }

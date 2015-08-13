@@ -5,6 +5,6 @@ package org.sample;
  */
 public interface Observer {
 
-    public void notification(ParkingLot parkingLot);
+    public void notification(ParkingLot parkingLot,NotificationType type);
 
 }

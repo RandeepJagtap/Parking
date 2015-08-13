@@ -1,31 +1,44 @@
 package org.sample;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Randeep on 8/11/2015.
  */
-public class ParkingLot implements NotificationForFull,NotificationForEmpty,NotificationForEightyPercent {
+public class ParkingLot implements NotificationForFull,NotificationForParkingAvailable,NotificationForEightyPercent {
     private boolean fullSign;
     private boolean eightyPercentlFlag;
     private Integer lotCount = 0;
     private Integer capacity;
     private Lot[] lots;
-    private ArrayList<Ticket> tickets = new ArrayList<>();
+    private List<Ticket> tickets = new ArrayList<>();
     private Owner owner;
-    private ArrayList<Observer> fullObservers = new ArrayList<Observer>();
-    private ArrayList<Observer> availabelObservers = new ArrayList<Observer>();
-    private ArrayList<Observer> eightyPercentlObservers = new ArrayList<Observer>();
+    private List<Observer> fullObservers = new ArrayList<Observer>();
+    private List<Observer> availabelObservers = new ArrayList<Observer>();
+    private List<Observer> eightyPercentlObservers = new ArrayList<Observer>();
+    private Attendant attendant;
 
-    public ParkingLot(Integer capacity, Owner owner) {
+    public ParkingLot(Integer capacity, Owner owner,Attendant attendant) {
+        this.attendant=attendant;
         fullSign = false;
         this.owner = owner;
         this.capacity = capacity;
+        attendant.assignParkingLot(this);
+        owner.createParkingLot(this);
         lots = new Lot[capacity];
         for (int i = 0; i < capacity; i++) {
             lots[i] = new Lot(lotCount++);
         }
-        owner.createParkingLot(this);
+        if (capacity==0)
+        {
+            notifyObserversForFull();
+            this.fullSign = true;
+
+        }
+
+
+
     }
 
     public Ticket park(Car car) throws ParkingFullException {
@@ -86,7 +99,7 @@ public class ParkingLot implements NotificationForFull,NotificationForEmpty,Noti
         return capacity;
     }
 
-    public ArrayList<Ticket> getTickets() {
+    public List<Ticket> getTickets() {
         return tickets;
     }
 
@@ -108,7 +121,7 @@ public class ParkingLot implements NotificationForFull,NotificationForEmpty,Noti
     @Override
     public void notifyObserversForFull( ) {
         for (Observer ob : fullObservers) {
-            ob.notification(this);
+            ob.notification(this,NotificationType.PARKINGFULL);
         }
     }
 
@@ -125,7 +138,7 @@ public class ParkingLot implements NotificationForFull,NotificationForEmpty,Noti
     @Override
     public void notifyObserversForEmpty() {
         for (Observer ob : availabelObservers) {
-            ob.notification(this);
+            ob.notification(this,NotificationType.PARKINGAVAILABLE);
         }
     }
 
@@ -142,7 +155,13 @@ public class ParkingLot implements NotificationForFull,NotificationForEmpty,Noti
     @Override
     public void notifyObserversForEightyPercent() {
         for (Observer ob : eightyPercentlObservers) {
-            ob.notification(this);
+            ob.notification(this,NotificationType.PARKINGEIGHTYPERCENTFULL);
         }
+    }
+
+    public Integer freeSpaces(){
+
+
+        return capacity-tickets.size();
     }
 }
