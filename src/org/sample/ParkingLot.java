@@ -27,6 +27,7 @@ public class ParkingLot implements NotificationForFull,NotificationForParkingAva
         this.capacity = capacity;
         attendant.assignParkingLot(this);
         owner.createParkingLot(this);
+
         lots = new Lot[capacity];
         for (int i = 0; i < capacity; i++) {
             lots[i] = new Lot(lotCount++);

@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by Randeep on 8/13/2015.
  */
-public abstract class Attendant implements Observer{
+public class Attendant implements Observer{
     String name;
     List<ParkingLot> availableParkingLots = new ArrayList<ParkingLot>();
     List<ParkingLot> parkingLots = new ArrayList<ParkingLot>();
@@ -14,7 +14,10 @@ public abstract class Attendant implements Observer{
     public Attendant(String name) {
         this.name = name;
     }
-    public abstract ParkingLot getFreeParkingLot() throws NoSpaceAvailable;
+    public ParkingLot getFreeParkingLot(SearchCriteria searchCriteria) throws NoSpaceAvailable{
+
+        return searchCriteria.getFreeParkingLot(availableParkingLots);
+    }
 
 
 

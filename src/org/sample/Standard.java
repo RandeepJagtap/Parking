@@ -1,18 +1,15 @@
 package org.sample;
 
+import java.util.List;
+
 /**
  * Created by Randeep on 8/13/2015.
  */
-public class StandardAttendant extends Attendant{
-    public StandardAttendant(String name) {
-        super(name);
-    }
+public class Standard implements SearchCriteria{
 
-    public StandardAttendant() {
-    }
 
     @Override
-    public ParkingLot getFreeParkingLot() throws NoSpaceAvailable{
+    public ParkingLot getFreeParkingLot(List<ParkingLot> availableParkingLots) throws NoSpaceAvailable{
         if(availableParkingLots.size()!=0){
             return availableParkingLots.get(0);}
         else {
